@@ -1,9 +1,10 @@
 library(usethis)
+library(glue)
 library(roxygen2)
 library(tidyverse)
 library(ipeds)
 options("ipeds.download.dir" = "/Users/julianickodemus/Coding/R/ipedsData")
-
+setwd("/Users/julianickodemus/Coding/R/ipedsData/ipedsTablesRPKG/ipedstables/data/")
 
 
 available_ipeds <- ipeds::available_ipeds()
@@ -32,7 +33,9 @@ download_missing_years <- function(missing_years) {
 }
 
 generate_tibble <- function(table_name, table_year) {
-    tibble(ipeds::ipeds_survey(table_name, year = table_year))
+    ipeds_table <- tibble(ipeds::ipeds_survey(table_name, year = table_year))
+    assign(glue("{table_name}"), ipeds_table)
+    save(list = table_name, file = glue("{table_name}.Rda"))
 }
 
 
