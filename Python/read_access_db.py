@@ -1,5 +1,7 @@
 import jaydebeapi as jdba
 
+from csv import
+
 db_path = "/Users/julianickodemus/Coding/R/ipedsData/IPEDS201011.accdb"
 # UCanAccess jar files
 ucanaccess_jars = [
@@ -28,19 +30,47 @@ csrs.execute(
     """
 )
 HD2010 = csrs.fetchall()
+table_names = HD2010.pop()[0]
 for row in HD2010:
-    print(row)
+    table_names = f"{table_names},{row[0]}"
+print(table_names)
 
-print("end of HD2010")
 
-csrs.execute(
-    """
-    SELECT COLUMN_NAME
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE table_name=N'FLAGS2010'
-    """
-)
+def get_table(table_name: str, connection: jdba.Connection):
+    table_data = [
+        ("NULL",),
+    ]
+    table_names = [
+        ("NULL",),
+    ]
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT *" + f"FROM {table_name}")
+        table_data = cursor.fetchall()
 
-FLAGS = csrs.fetchall()
-for row in FLAGS:
-    print(row)
+        cursor.execute(
+            "SELECT COLUMN_NAME "
+            + "FROM INFORMATION_SCHEMA.COLUMNS "
+            + f"WHERE table_name=N'{table_name}'"
+        )
+        table_names = cursor.fetchall()
+        header_row = []
+        for row in table_names:
+            header_row.append(row[0])
+        header_row = tuple(header_row)
+
+        table_data.insert(0, header_row)
+
+    return table_data
+
+
+def array_to_csv(table_name: str, array):
+    with open(f"{table_name}.csv", a) as file:
+
+
+
+
+
+
+if __name__ == "__main__":
+    table = get_table("HD2010", cnxn)
+    print(table)
