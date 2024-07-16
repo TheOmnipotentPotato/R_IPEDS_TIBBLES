@@ -1,6 +1,17 @@
+import logging
+from time import process_time
+
 import jaydebeapi as jdba
 
 from csv_writter import dict_csv_write
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format="[%(levelname)s] %(asctime)s: %(message)s",
+    filename="db_write.log",
+    encoding="utf-8",
+    level=logging.DEBUG,
+)
 
 db_path = "/Users/julianickodemus/Coding/R/ipedsData/IPEDS201011.accdb"
 
@@ -23,11 +34,13 @@ print("Connection made")
 csrs: jdba.Cursor = cnxn.cursor()
 
 
-def get_table(table_name: str, connection: jdba.Connection) -> dict[str | list[str], str | list[tuple[str]]]:
+def get_table(
+    table_name: str, connection: jdba.Connection
+) -> dict[str | list[str], str | list[tuple[str]]]:
     with connection.cursor() as cursor:
         cursor.execute("SELECT *" + f"FROM {table_name}")
         table_data: list[tuple[str]] = cursor.fetchall()
-        table_data: list[list[str]] = 
+        table_data: list[list[str]] = [list(row) for row in table_data]
         cursor.execute(
             "SELECT COLUMN_NAME "
             + "FROM INFORMATION_SCHEMA.COLUMNS "
@@ -36,8 +49,7 @@ def get_table(table_name: str, connection: jdba.Connection) -> dict[str | list[s
         column_names: list[tuple[str]] = cursor.fetchall()
         column_names: list[str] = [row[0] for row in column_names]
 
-
-    return {'head' : column_names, 'data': table_data}
+    return {"head": column_names, "data": table_data}
 
 
 def get_table_names(connection: jdba.Connection) -> list[str]:
@@ -60,14 +72,18 @@ def database_to_csv(path: str) -> None:
         ["", ""],
         classpath,
     ) as conn:
-        table_names = get_table_names(conn)
+        table_names = get_table_names(conn)[4:]
+        print(table_names)
         for name in table_names:
+            start_time = process_time()
+            logging.debug(f"Processing {name} table")
             table: dict[str | list[str], str | list[tuple[str]]] = get_table(name, conn)
-            dict_csv_write(table['head'], table['data'], name)
-
-
-
-
+            dict_csv_write(table["head"], table["data"], name)
+            stop_time = process_time()
+            p_time = stop_time - start_time
+            logging.debug(
+                f"Processed {name} table in {p_time//60} mins and {p_time % 60} seconds"
+            )
 
 
 if __name__ == "__main__":
