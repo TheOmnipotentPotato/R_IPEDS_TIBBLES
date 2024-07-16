@@ -13,7 +13,7 @@ ucanaccess_jars = [
     "/Users/julianickodemus/Coding/JDBC/UCanAccess/UCanAccess501/lib/jackcess-3.0.1.jar",
 ]
 classpath = ":".join(ucanaccess_jars)
-cnxn: jbda.Connection = jdba.connect(
+cnxn: jdba.Connection = jdba.connect(
     "net.ucanaccess.jdbc.UcanaccessDriver",
     f"jdbc:ucanaccess://{db_path};newDatabaseVersion=V2010",
     ["", ""],
@@ -23,39 +23,53 @@ print("Connection made")
 csrs: jdba.Cursor = cnxn.cursor()
 
 
-def get_table(table_name: str, connection: jdba.Connection):
-    table_data = [
-        ("NULL",),
-    ]
-    table_names = [
-        ("NULL",),
-    ]
+def get_table(table_name: str, connection: jdba.Connection) -> dict[str | list[str], str | list[tuple[str]]]:
     with connection.cursor() as cursor:
         cursor.execute("SELECT *" + f"FROM {table_name}")
         table_data: list[tuple[str]] = cursor.fetchall()
-
+        table_data: list[list[str]] = 
         cursor.execute(
             "SELECT COLUMN_NAME "
             + "FROM INFORMATION_SCHEMA.COLUMNS "
             + f"WHERE table_name=N'{table_name}'"
         )
+        column_names: list[tuple[str]] = cursor.fetchall()
+        column_names: list[str] = [row[0] for row in column_names]
+
+
+    return {'head' : column_names, 'data': table_data}
+
+
+def get_table_names(connection: jdba.Connection) -> list[str]:
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT table_name "
+            + "FROM INFORMATION_SCHEMA.TABLES "
+            + "WHERE table_type = 'BASE TABLE'"
+        )
         table_names: list[tuple[str]] = cursor.fetchall()
-
-        header_row: any = []
-        for row in table_names:
-            header_row.append(row[0])
-        header_row = tuple(header_row)
-
-        table_data.insert(0, header_row)
-
-    return table_data
+        table_names: list[str] = [row[0] for row in table_names]
+    return table_names
 
 
 def database_to_csv(path: str) -> None:
 
-    cnxn: jbda.Connection = jdba.connect(
+    with jdba.connect(
         "net.ucanaccess.jdbc.UcanaccessDriver",
-        f"jdbc:ucanaccess://{db_path};newDatabaseVersion=V2010",
+        f"jdbc:ucanaccess://{path};newDatabaseVersion=V2010",
         ["", ""],
         classpath,
-    )
+    ) as conn:
+        table_names = get_table_names(conn)
+        for name in table_names:
+            table: dict[str | list[str], str | list[tuple[str]]] = get_table(name, conn)
+            dict_csv_write(table['head'], table['data'], name)
+
+
+
+
+
+
+if __name__ == "__main__":
+    out = database_to_csv(db_path)
+    print(out)
