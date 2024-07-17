@@ -1,7 +1,11 @@
 import logging
+from re import search
 from time import process_time
 
 import jaydebeapi as jdba
+import pandas as pd
+from yaspin import yaspin
+from yaspin.spinners import Spinners
 
 from csv_writter import dict_csv_write
 
@@ -30,17 +34,28 @@ cnxn: jdba.Connection = jdba.connect(
     ["", ""],
     classpath,
 )
-print("Connection made")
+logging.info("Connected to database")
 csrs: jdba.Cursor = cnxn.cursor()
 
 
-def get_table(
-    table_name: str, connection: jdba.Connection
-) -> dict[str | list[str], str | list[tuple[str]]]:
+def fetch_fast(cursor: jdba.Cursor) -> list[tuple[str]]:
+    cursor.arraysize = 50
+    rows = []
+    while True:
+        row = cursor.fetchmany()
+        if row is None:
+            break
+        else:
+            rows.append(row)
+    return rows
+
+
+def get_table(table_name: str, connection: jdba.Connection):
     with connection.cursor() as cursor:
         cursor.execute("SELECT *" + f"FROM {table_name}")
-        table_data: list[tuple[str]] = cursor.fetchall()
-        table_data: list[list[str]] = [list(row) for row in table_data]
+        logging.debug(f"SQL query complete for {table_name}")
+        table_data: list[tuple[str]] = fetch_fast(cursor)
+        logging.debug(f"Data extracted from {table_name} table")
         cursor.execute(
             "SELECT COLUMN_NAME "
             + "FROM INFORMATION_SCHEMA.COLUMNS "
@@ -48,12 +63,19 @@ def get_table(
         )
         column_names: list[tuple[str]] = cursor.fetchall()
         column_names: list[str] = [row[0] for row in column_names]
+        logging.debug(f"Header created for {table_name}")
 
     return {"head": column_names, "data": table_data}
 
 
+def find_tables_table(table_names: list[str]) -> str:
+    regex = lambda name: search("TABLES", name)
+    name = [regex(table).string for table in table_names if not regex(table)]
+
+
 def get_table_names(connection: jdba.Connection) -> list[str]:
     with connection.cursor() as cursor:
+        # get the tables in database
         cursor.execute(
             "SELECT table_name "
             + "FROM INFORMATION_SCHEMA.TABLES "
@@ -61,6 +83,7 @@ def get_table_names(connection: jdba.Connection) -> list[str]:
         )
         table_names: list[tuple[str]] = cursor.fetchall()
         table_names: list[str] = [row[0] for row in table_names]
+
     return table_names
 
 
@@ -87,5 +110,8 @@ def database_to_csv(path: str) -> None:
 
 
 if __name__ == "__main__":
-    out = database_to_csv(db_path)
-    print(out)
+    # out = database_to_csv(db_path)
+    # print(out)
+    table = get_table("C2010_A", cnxn)
+    df: pd.DataFrame = pd.DataFrame(table["data"], columns=table["head"])
+    df.to_csv("test3.csv", encoding="utf-8", index=False, header=True)
