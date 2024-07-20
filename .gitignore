@@ -3,5 +3,7 @@
 .RData
 .Ruserdata
 data/
-.csv
+*.csv
 .DS_store
+*.log
+Python/*.csv

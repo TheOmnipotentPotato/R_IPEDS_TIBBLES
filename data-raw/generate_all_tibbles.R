@@ -51,11 +51,8 @@ pull_all_data <- function(year_list) {
 }
 
 
-# get_missing_years() |> download_missing_years()
 valid_years <- get_valid_years()
 typeof(valid_years)
-# pull_all_data(valid_years)
-# pull_data_year(valid_years[1][1])
 valid_years
 
 pull_all_data(list(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023))

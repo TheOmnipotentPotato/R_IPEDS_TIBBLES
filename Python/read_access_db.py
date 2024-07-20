@@ -9,12 +9,12 @@ from yaspin.spinners import Spinners
 
 from csv_writter import dict_csv_write
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(
+logger = logging.getlogger(__name__)
+logging.basicconfig(
     format="[%(levelname)s] %(asctime)s: %(message)s",
     filename="db_write.log",
     encoding="utf-8",
-    level=logging.DEBUG,
+    level=logging.debug,
 )
 
 db_path = "/Users/julianickodemus/Coding/R/ipedsData/IPEDS201011.accdb"
