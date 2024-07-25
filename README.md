@@ -27,12 +27,34 @@ On Debian (Ubuntu, Linux Mint)
 apt install mdbtools
 ```
 If you wish to build from source the `mdbtools` repo has good instructions on that 
-[mdbtools](https://github.com/mdbtools/mdbtools)\
+[m=1tools](https://github.com/mdbtools/mdbtools)\
 This package is not yet polished enough to put on CRAN and install normally. 
 
 ## usage
 
-After cloning the repo navigate to it in your IDE of choice. You will need to change the `database_path` variable to wherever the ipeds access database files are installed on your machine.
+After cloning the repo navigate to it in your IDE of choice. You will need to change the `database_path` variable in `extract_data.R` to wherever the ipeds access database files are installed on your machine.
 ```
 database_path <- #where the .accdb files are stored
 ```
+
+After saving the change run the script with whatever method you prefer. The example for this README will be with the terminal.
+
+```
+cd ~/Documents/ipeds && Rscript extract_data.R
+```
+
+To use the data in a project load it with the R builtin `load`
+```
+#for example loading the C2022_A table
+load(file="C2022_A.Rda")
+```
+## future plans
+
+This project is actively being worked on and will become easier to use as time goes on. I plan on working on a Windows fork
+
+### TODO
+- [ ] build package through roxygen2
+- [ ] automate download process
+- [ ] windows compatible fork
+- [ ] document functions for `?function` in R console
+- [ ] build vignette for package
