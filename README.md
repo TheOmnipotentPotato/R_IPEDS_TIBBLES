@@ -11,6 +11,28 @@ This workflow could very easily be refactored into a parallel process and that i
 
 ## install
 
+Clone the repo(and create the directory to store the repo)
+
 ```
-git clone https://github.com/TheOmnipotentPotato/ipeds-tables.git
+mkdir -p ~/Documents/ipeds && git clonehttps://github.com/TheOmnipotentPotato/ipeds-tables.git ~/Documents/ipeds
+```
+install `mdbtools` which allows unix machines to extract data from an access database
+
+On MacOS
+```
+brew instal mdbtools
+```
+On Debian (Ubuntu, Linux Mint)
+```
+apt install mdbtools
+```
+If you wish to build from source the `mdbtools` repo has good instructions on that 
+[mdbtools](https://github.com/mdbtools/mdbtools)
+This package is not yet polished enough to put on CRAN and install normally. 
+
+## usage
+
+After cloning the repo navigate to it in your IDE of choice. You will need to change the `database_path` variable to wherever the ipeds access database files are installed on your machine.
+```
+database_path <- #where the .accdb files are stored
 ```
