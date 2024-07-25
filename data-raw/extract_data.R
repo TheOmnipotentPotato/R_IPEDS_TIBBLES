@@ -2,16 +2,15 @@ library(Hmisc)
 library(purrr)
 library(tidyverse)
 library(logger)
-setwd("/Users/julianickodemus/Coding/R/ipedsData")
 
-log_path <- "/Users/julianickodemus/Coding/R/ipedsData/ipedsTablesRPKG/ipedstables/data-raw/db_log.log"
+log_path <- paste0(getwd(), "/logs")
 databases <- list.files(pattern = ".*\\.accdb")
 log_appender(appender_file(log_path))
 
 
+database_path <- getOption("ipeds.database.dir")
 
-
-
+setwd(database_path)
 
 extract_database <- function(path) {
     year_str <- gsub(pattern = "^[A-Z]*", "-", path) |>
@@ -43,11 +42,11 @@ write_table_to_Rda <- function(table, name) {
 database_to_Rda <- function(database) {
     names <- get_table_names(database$data, database$year)
     tables <- names |> purrr::map(\(name) get_table(name, database$data))
-    setwd("/Users/julianickodemus/Coding/R/ipedsData/ipedsTablesRPKG/ipedstables/data/")
+
+    setwd(paste0(database_path, "/data"))
     tables |> purrr::map(\(table) write_table_to_Rda(table$data, table$name))
 }
 
-# databases |> purrr::map(\(database) print(database))
 databases |>
     purrr::map(\(database) extract_database(database)) |>
     purrr::map(\(database) database_to_Rda(database))
