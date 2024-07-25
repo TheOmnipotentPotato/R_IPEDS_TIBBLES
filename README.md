@@ -27,7 +27,7 @@ On Debian (Ubuntu, Linux Mint)
 apt install mdbtools
 ```
 If you wish to build from source the `mdbtools` repo has good instructions on that 
-[mdbtools](https://github.com/mdbtools/mdbtools)
+[mdbtools](https://github.com/mdbtools/mdbtools)\
 This package is not yet polished enough to put on CRAN and install normally. 
 
 ## usage
