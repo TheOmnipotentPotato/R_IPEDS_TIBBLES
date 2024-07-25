@@ -7,3 +7,10 @@ This package is very much still a work in progress. All the functional aspects a
 
 The script should be pointed at the directory where all the .accdb files are stored. The script will then find the accdb files in that directory, and pipe them into the extraction pipeline.
 This workflow could very easily be refactored into a parallel process and that is on the todo list.
+
+
+## install
+
+```
+git clone https://github.com/TheOmnipotentPotato/ipeds-tables.git
+```
